@@ -43,6 +43,11 @@
             gap: 1rem;
         }
 
+        .auth-buttons a {
+            display: inline-block;
+            text-decoration: none;
+        }
+
         .btn {
             padding: 0.5rem 1.5rem;
             border-radius: 6px;
@@ -61,6 +66,15 @@
             background-color: #1e3c72;
             border: none;
             color: white;
+        }
+
+        .btn-login, .btn-register {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-login:active, .btn-register:active {
+            transform: translateY(1px);
         }
 
         .btn:hover {
@@ -222,8 +236,8 @@
 
         
         <div class="auth-buttons">
-            <a href="login.html" class="btn btn-login">Login</a>
-            <a href="register.html" class="btn btn-register">Register</a>
+            <a href="loginadmin.html" class="btn btn-login" style="text-decoration: none;">Login</a>
+            <a href="register.html" class="btn btn-register" style="text-decoration: none;">Register</a>
         </div>
     </header>
 
