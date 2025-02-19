@@ -9,7 +9,7 @@
   force = true
 
 [build.processing]
-  skip_processing = truee
+  skip_processing = true
   minify = true
 
 [build.processing.css]
@@ -26,7 +26,6 @@
 [build.processing.images]
   compress = true
 
-# Enable caching
 [[headers]]
   for = "/*"
   [headers.values]
