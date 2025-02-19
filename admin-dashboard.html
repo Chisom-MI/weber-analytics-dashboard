@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Registration Approvals</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #1e3c72;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .requests-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .requests-table th,
+        .requests-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .requests-table th {
+            background-color: #f8f9fa;
+            color: #1e3c72;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .approve-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-right: 0.5rem;
+        }
+
+        .reject-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .bulk-action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .approve-all-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .reject-all-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .bulk-action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .checkbox-column {
+            width: 40px;
+            text-align: center;
+        }
+
+        .delete-users-btn {
+            background-color: #1e3c72;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #555;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .delete-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Add this to your existing styles */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-badge.approved {
+            background-color: #e6f4ea;
+            color: #1e8e3e;
+        }
+
+        .status-badge.rejected {
+            background-color: #fce8e6;
+            color: #d93025;
+        }
+
+        .status-badge.under-review {
+            background-color: #fff7e6;
+            color: #b06000;
+        }
+
+        .bulk-action-btn.clear-data {
+            background-color: #dc3545;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bulk-action-btn.clear-data:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Registration Approval Dashboard</h1>
+            <button class="bulk-action-btn" onclick="refreshData()" style="float: right; background-color: #4CAF50;">
+                Refresh Data
+            </button>
+        </div>
+
+        <div class="button-container">
+            <button class="bulk-action-btn approve-all-btn" onclick="approveSelected()">
+                Approve Selected
+            </button>
+            <button class="bulk-action-btn reject-all-btn" onclick="rejectSelected()">
+                Reject Selected
+            </button>
+            <button class="bulk-action-btn delete-users-btn" onclick="showUsersModal()">
+                Manage Users
+            </button>
+            <button class="bulk-action-btn" 
+                    onclick="clearAllData()" 
+                    style="background-color: #dc3545; color: white; margin-left: auto;">
+                Clear All Data
+            </button>
+            <button class="bulk-action-btn" 
+                    onclick="verifyDataSync()" 
+                    style="background-color: #1e3c72; color: white;">
+                Check Data Sync
+            </button>
+        </div>
+
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-column">
+                        <input type="checkbox" id="selectAll" onclick="toggleAllCheckboxes()">
+                    </th>
+                    <th>Organization</th>
+                    <th>Acronym</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>Date</th>
+                    <th>Status</th>  <!-- New status column -->
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                <!-- Requests will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Function to load registration requests from email
+        async function loadRequests() {
+            try {
+                const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+                console.log('Loading requests:', requests); // Debug log
+                
+                const tableBody = document.getElementById('requestsTableBody');
+                
+                if (!requests.length) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center;">No registration requests found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Sort requests by date (newest first)
+                requests.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                tableBody.innerHTML = requests.map(request => `
+                    <tr>
+                        <td class="checkbox-column">
+                            <input type="checkbox" class="request-checkbox" data-email="${request.email}">
+                        </td>
+                        <td>${request.orgName || ''}</td>
+                        <td>${request.orgAcronym || ''}</td>
+                        <td>${request.fullName || ''}</td>
+                        <td>${request.email || ''}</td>
+                        <td>${request.password || ''}</td>
+                        <td>${request.date ? new Date(request.date).toLocaleDateString() : ''}</td>
+                        <td>
+                            <span class="status-badge ${request.status || 'under-review'}">
+                                ${(request.status || 'Under Review').charAt(0).toUpperCase() + 
+                                  (request.status || 'Under Review').slice(1)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="action-btn approve-btn" onclick="approveRequest('${request.email}')">Approve</button>
+                            <button class="action-btn reject-btn" onclick="rejectRequest('${request.email}')">Reject</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+                // Update the total count in the header
+                document.querySelector('.header h1').textContent = 
+                    `Registration Approval Dashboard (${requests.length} Pending)`;
+                    
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                alert('Failed to load registration requests');
+            }
+        }
+
+        // Function to approve a registration request
+        async function approveRequest(email) {
+            try {
+                // Check if EmailJS is initialized
+                if (!emailjs) {
+                    throw new Error('Email service is not initialized');
+                }
+
+                const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+e                 const requestIndex = requests.findIndex(r => r.email === email);
+                
+                if (requestIndex === -1) {
+                    throw new Error('Request not found');
+                }
+
+                // Update request status
+                requests[requestIndex].status = 'approved';
+                localStorage.setItem('registrationRequests', JSON.stringify(requests));
+
+                const request = requests[requestIndex];
+
+                // Create user account first
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                
+                // Check if user already exists
+                if (users.some(user => user.email === email)) {
+                    throw new Error('User already exists');
+                }
+
+                const newUser = {
+                    fullName: request.fullName,
+                    email: request.email,
+                    orgName: request.orgName,
+                    orgAcronym: request.orgAcronym,
+                    password: request.password,
+                    dateCreated: new Date().toISOString(),
+                    status: 'active'
+                };
+                
+                // Send approval email first
+                const emailResponse = await emailjs.send(
+                    "service_1sh2nb9",
+                    "template_jlq40gp",
+                    {
+                        to_email: email,
+                        from_name: "Weber Analytics Admin",
+                        message: "Your registration has been approved. You can now login with your email and password.",
+                        status: "approved"
+                    }
+                ).catch(error => {
+                    throw new Error(`Email sending failed: ${error.message}`);
+                });
+
+                // If email sent successfully, update storage
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                removeRequest(email);
+                
+                loadRequests();
+                return true;
+            } catch (error) {
+                console.error('Error in approveRequest:', error);
+                throw error; // Re-throw to be handled by the calling function
+            }
+        }
+
+        // Function to reject a registration request
+        async function rejectRequest(email) {
+            try {
+                // Check if EmailJS is initialized
+                if (!emailjs) {
+                    throw new Error('Email service is not initialized');
+                }
+
+                const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+                const requestIndex = requests.findIndex(r => r.email === email);
+                
+                if (requestIndex === -1) {
+                    throw new Error('Request not found');
+                }
+
+                // Update request status
+                requests[requestIndex].status = 'rejected';
+                localStorage.setItem('registrationRequests', JSON.stringify(requests));
+
+                // Send rejection email
+                const emailResponse = await emailjs.send(
+                    "service_1sh2nb9",
+                    "template_rejection",
+                    {
+                        to_email: email,
+                        from_name: "Weber Analytics Admin",
+                        message: "Your registration request has been rejected.",
+                        status: "rejected"
+                    }
+                ).catch(error => {
+                    throw new Error(`Email sending failed: ${error.message}`);
+                });
+
+                // If email sent successfully, remove request
+                removeRequest(email);
+                loadRequests();
+                return true;
+            } catch (error) {
+                console.error('Error in rejectRequest:', error);
+                throw error; // Re-throw to be handled by the calling function
+            }
+        }
+
+        // Function to remove a request from storage
+        function removeRequest(email) {
+            const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+            const updatedRequests = requests.filter(request => request.email !== email);
+            localStorage.setItem('registrationRequests', JSON.stringify(updatedRequests));
+        }
+
+        // Add these new functions
+        function toggleAllCheckboxes() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.getElementsByClassName('request-checkbox');
+            for (let checkbox of checkboxes) {
+                checkbox.checked = selectAll.checked;
+            }
+        }
+
+        // Update the approveSelected function to handle errors properly
+        async function approveSelected() {
+            const checkboxes = document.getElementsByClassName('request-checkbox');
+            const selectedEmails = [];
+            
+            for (let checkbox of checkboxes) {
+                if (checkbox.checked) {
+                    selectedEmails.push(checkbox.dataset.email);
+                }
+            }
+
+            if (selectedEmails.length === 0) {
+                alert('Please select requests to approve');
+                return;
+            }
+
+            if (confirm(`Approve ${selectedEmails.length} selected requests?`)) {
+                try {
+                    for (let email of selectedEmails) {
+                        await approveRequest(email).catch(error => {
+                            throw new Error(`Failed to approve ${email}: ${error.message}`);
+                        });
+                    }
+                    alert('Selected requests approved successfully');
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        }
+
+        async function rejectSelected() {
+            const checkboxes = document.getElementsByClassName('request-checkbox');
+            const selectedEmails = [];
+            
+            for (let checkbox of checkboxes) {
+                if (checkbox.checked) {
+                    selectedEmails.push(checkbox.dataset.email);
+                }
+            }
+
+            if (selectedEmails.length === 0) {
+                alert('Please select requests to reject');
+                return;
+            }
+
+            if (confirm(`Reject ${selectedEmails.length} selected requests?`)) {
+            
+            tableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.orgName}</td>
+                    <td>${user.fullName}</td>
+                    <td>${user.email}</td>
+                    <td>${new Date(user.dateCreated).toLocaleDateString()}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteUser('${user.email}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteUser(email) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                try {
+                    // Remove from users table
+                    const users = JSON.parse(localStorage.getItem('users') || '[]');
+                    const updatedUsers = users.filter(user => user.email !== email);
+                    localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+                    // Remove from registration requests if present
+                    const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+                    const updatedRequests = requests.filter(request => request.email !== email);
+                    localStorage.setItem('registrationRequests', JSON.stringify(updatedRequests));
+
+                    // Remove from any other related tables (add more as needed)
+                    // For example, if you have a submissions table:
+                    const submissions = JSON.parse(localStorage.getItem('submissions') || '[]');
+                    const updatedSubmissions = submissions.filter(submission => submission.email !== email);
+                    localStorage.setItem('submissions', JSON.stringify(updatedSubmissions));
+
+                    // Refresh the users table display
+                    loadUsers();
+                    // Refresh the requests table display
+                    loadRequests();
+
+                    alert('User deleted successfully from all tables');
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Failed to delete user. Please try again.');
+                }
+            }
+        }
+
+        // Add modal close functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('usersModal');
+            const span = document.getElementsByClassName('close')[0];
+            
+            span.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+
+        function listenForNewRegistrations() {
+            // Listen for storage changes
+            window.addEventListener('storage', function(e) {
+                console.log('Storage event triggered:', e);
+                refreshData();
+            });
+
+            // Listen for custom events
+            window.addEventListener('registrationSubmitted', function(e) {
+                console.log('Registration submitted event received');
+                refreshData();
+            });
+        }
+
+        function validateRegistrationData(request) {
+            const requiredFields = ['orgName', 'orgAcronym', 'fullName', 'email', 'password'];
+            const missingFields = requiredFields.filter(field => !request[field]);
+            
+            if (missingFields.length > 0) {
+                throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(request.email)) {
+                throw new Error('Invalid email format');
+            }
+            
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial requests
+            loadRequests();
+            
+            // Start listening for new registrations
+            listenForNewRegistrations();
+        });
+
+        function showUsersModal() {
+            const modal = document.getElementById('usersModal');
+            modal.style.display = 'block';
+            loadUsers(); // Load users when modal is opened
+        }
+
+        function loadUsers() {
+            try {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const tableBody = document.getElementById('usersTableBody');
+                
+                if (!users.length) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center;">No users found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tableBody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.orgName || ''}</td>
+                        <td>${user.fullName || ''}</td>
+                        <td>${user.email || ''}</td>
+                        <td>${user.dateCreated ? new Date(user.dateCreated).toLocaleDateString() : ''}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteUser('${user.email}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading users:', error);
+                alert('Failed to load users');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadRequests();
+            loadUsers();
+            
+            // Start listening for storage changes
+            listenForNewRegistrations();
+            
+            // Add modal functionality
+            const modal = document.getElementById('usersModal');
+            const span = document.getElementsByClassName('close')[0];
+            
+            span.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+
+        function refreshData() {
+            console.log('Refreshing data...'); // Debug log
+            loadRequests();
+            loadUsers();
+        }
+
+        // Add auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+
+        function checkStorageData() {
+            console.log('=== Storage Data Check ===');
+            console.log('Registration Requests:', JSON.parse(localStorage.getItem('registrationRequests') || '[]'));
+            console.log('Users:', JSON.parse(localStorage.getItem('users') || '[]'));
+            return 'Check browser console for results';
+        }
+
+        // Add this function after your existing JavaScript functions
+        function clearAllData() {
+            if (confirm('⚠️ WARNING: This will delete all stored data including registration requests and users. Are you sure?')) {
+                try {
+                    localStorage.clear();
+                    console.log('Storage cleared successfully');
+                    refreshData(); // Refresh the dashboard
+                    alert('All data has been cleared successfully');
+                } catch (error) {
+                    console.error('Error clearing data:', error);
+                    alert('Failed to clear data');
+                }
+            }
+        }
+      
+        checkStorageData();
+
+        function verifyDataSync() {
+            const requests = JSON.parse(localStorage.getItem('registrationRequests') || '[]');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            console.log('=== Data Sync Check ===');
+            console.log('Registration Requests:', requests);
+            console.log('Total Requests:', requests.length);
+            console.log('Users:', users);
+            console.log('Total Users:', users.length);
+            
+            return {
+                requests: requests.length,
+                users: users.length
+            };
+        }
+
+        function setupAutoRefresh() {
+            // Refresh every 30 seconds
+            setInterval(refreshData, 30000);
+            
+            // Add visual indicator for last refresh
+            const header = document.querySelector('.header');
+            const refreshTime = document.createElement('div');
+            refreshTime.style.fontSize = '12px';
+            refreshTime.style.marginTop = '5px';
+            header.appendChild(refreshTime);
+            
+            function updateLastRefresh() {
+                refreshTime.textContent = `Last refreshed: ${new Date().toLocaleTimeString()}`;
+            }
+            
+            // Update on each refresh
+            const originalRefreshData = refreshData;
+            refreshData = function() {
+                originalRefreshData();
+                updateLastRefresh();
+            };
+            
+            // Initial update
+            updateLastRefresh();
+        }
+
+        // Call this function when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAutoRefresh();
+            refreshData();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS with your public key
+        (function() {
+            emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS public key
+        })();
+    </script>
+
+    <div id="usersModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Users</h2>
+                <span class="close">&times;</span>
+            </div>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Organization</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Date Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

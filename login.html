@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Education Sector 5Ws</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            text-align: center;
+            color: #3498db;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 500;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .login-form button:hover {
+            background-color: #2980b9;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #000000;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #666666;
+        }
+
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 1rem 0;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+        }
+
+        .social-login {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-login button {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+        }
+
+        .strength-weak { background-color: #e74c3c; }
+        .strength-medium { background-color: #f1c40f; }
+        .strength-strong { background-color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Education Sector Weber anlytics</h1>
+            <p>Please login to continue</p>
+        </div>
+        <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+                <div class="error-message" id="username-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required onkeyup="checkPasswordStrength(this.value)">
+                    <span class="toggle-password" onclick="togglePassword()">&#9681;</span>
+                </div>
+                <div class="password-strength" id="passwordStrength"></div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <label for="rememberMe">Remember me</label>
+            </div>
+
+            <button type="submit">Login</button>
+
+            <div class="social-login">
+                <button type="button" onclick="loginWithGoogle()">
+                    <img src="https://accounts.google.com/favicon.ico" width="20" height="20" alt="Google logo">
+                    Sign in with Google
+                </button>
+                <button type="button" onclick="loginWithMicrosoft()">
+                    <img src="https://www.microsoft.com/favicon.ico" width="20" height="20" alt="Microsoft logo">
+                    Sign in with Microsoft
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Password visibility toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.toggle-password');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.innerHTML = '&#9680;'; // Open eye icon
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.innerHTML = '&#9681;'; // Closed eye icon
+            }
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('passwordStrength');
+            let strength = 0;
+            
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            if (password.length >= 8) strength++;
+
+            switch(strength) {
+                case 0:
+                case 1:
+                case 2:
+                    strengthBar.className = 'password-strength strength-weak';
+                    break;
+                case 3:
+                case 4:
+                    strengthBar.className = 'password-strength strength-medium';
+                    break;
+                case 5:
+                    strengthBar.className = 'password-strength strength-strong';
+                    break;
+            }
+        }
+
+        // Remember me functionality
+        function saveRememberMe() {
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const username = document.getElementById('username').value;
+            
+            if (rememberMe) {
+                localStorage.setItem('rememberedUser', username);
+            } else {
+                localStorage.removeItem('rememberedUser');
+            }
+        }
+
+        // Load remembered username
+        window.addEventListener('load', () => {
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            if (rememberedUser) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('rememberMe').checked = true;
+            }
+        });
+
+        // Replace the existing handleLogin function with this version
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Save remember me preference
+            saveRememberMe();
+            
+            try {
+                // Validation with secure credentials
+                if (username === 'EiEWG_nigeria' && password === 'Education@2024') {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    window.location.href = 'Projectpage.html'; // Changed from '../weber.html'
+                } else {
+                    document.getElementById('password-error').style.display = 'block';
+                    document.getElementById('password-error').textContent = 'Invalid username or password';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred during login. Please try again.');
+            }
+        }
+
+        // OAuth integration (implement these functions with your OAuth provider)
+        function loginWithGoogle() {
+            // Implement Google OAuth login
+            alert('Google login not implemented');
+        }
+
+        function loginWithMicrosoft() {
+            // Implement Microsoft OAuth login
+            alert('Microsoft login not implemented');
+        }
+
+        // Clear error messages when user starts typing
+        document.getElementById('username').addEventListener('input', function() {
+            document.getElementById('username-error').style.display = 'none';
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            document.getElementById('password-error').style.display = 'none';
+        });
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const togglePassword = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                togglePassword.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                togglePassword.textContent = 'Show';
+            }
+        }
+
+        function handleGoogleLogin() {
+            // Implement Google login functionality here
+        }
+
+        function handleFacebookLogin() {
+            // Implement Facebook login functionality here
+        }
+
+        // Update your login form submit handler
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Get approved users
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user && user.status === 'active') {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                window.location.href = 'index.html';
+            } else {
+                const statusDiv = document.getElementById('loginStatus');
+                statusDiv.textContent = 'Invalid credentials or account not approved';
+                statusDiv.className = 'status-message error';
+                statusDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

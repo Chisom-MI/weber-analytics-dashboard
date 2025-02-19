@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            padding: 2rem;
+        }
+
+        .header {
+            background-color: #1e3c72;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .back-btn::before {
+            content: '←';
+            font-size: 1.2rem;
+        }
+
+        .add-project-btn {
+            background-color: #2a5298;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .project-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-header::before {
+            display: none; /* Remove gradient border */
+        }
+
+        .edit-btn, .save-btn {
+            background-color: #1e3c72;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+            min-width: 80px;
+        }
+
+        .save-btn {
+            background-color: #4CAF50;
+        }
+
+        .edit-btn:hover {
+            background-color: #2a5298;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30,60,114,0.2);
+        }
+
+        .save-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76,175,80,0.2);
+        }
+
+        .project-field {
+            margin-bottom: 1.5rem;  /* Standardize spacing */
+        }
+
+        .field-label {
+            font-weight: 500;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+        }
+
+        .field-value {
+            padding: 0.75rem;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            color: #495057;
+            line-height: 1.5;
+            margin-bottom: 1rem;  /* Add consistent margin */
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .field-input:not(.editing) {
+            cursor: default;
+            pointer-events: none;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;  /* Match the Background & Rationale border */
+            border-radius: 4px;
+            padding: 0.75rem;
+            width: 100%;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Remove the dashed border style */
+        .field-input:not(.editing) {
+            border-bottom: 1px solid #e0e0e0;  /* Change from dashed to solid */
+        }
+
+        .field-input.editing {
+            background-color: white;
+            cursor: text;
+            border-color: #1e3c72;
+        }
+
+        .field-input.editing:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30,60,114,0.1);
+        }
+
+        textarea.field-input:not(.editing) {
+            resize: none;
+            border: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .section h3 {
+            color: #1e3c72;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section::before {
+            display: none; /* Remove gradient border */
+        }
+
+        .section::after {
+            display: none; /* Remove bottom gradient */
+        }
+
+        .section-number {
+            background: #1e3c72;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .beneficiaries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .beneficiaries-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+        }
+
+        .beneficiaries-table th,
+        .beneficiaries-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+
+        .beneficiaries-table .field-input {
+            margin: 0;
+            border: none;
+            background: transparent;
+        }
+
+        .beneficiaries-table .field-input:not(.editing) {
+            padding: 0;
+            border-bottom: none;
+            position: relative;
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            color: #495057;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        .monthly-report-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .monthly-report-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76,175,80,0.2);
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Ensure consistent field styling across all sections */
+        .section .project-field .field-value,
+        .section .project-field .field-input:not(.editing) {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 0.75rem;
+        }
+
+        .beneficiaries-table th {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+            color: #1e3c72;  /* Match the blue color */
+            font-weight: 500;  /* Match the font weight */
+            font-size: 1rem;  /* Match the font size */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Add a subsection title style that matches field labels */
+        .subsection-title {
+            color: #1e3c72;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 1.5rem 0 1rem 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Style the table to match other input areas */
+        .beneficiaries-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Project Documentation</h1>
+        <div class="header-buttons">
+            <a href="weber.html" class="monthly-report-btn">Monthly Report</a>
+            <a href="index.html" class="back-btn">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div id="projects-container">
+        <!-- Projects will be added here dynamically -->
+    </div>
+
+    <script>
+        let projects = [];
+
+        function addNewProject() {
+            const newProject = {
+                id: Date.now(),
+                // 1. Project Overview
+                organizationName: '',
+                projectTitle: '',
+                budget: '',
+                projectDuration: '',
+                implementingPartner: '',
+                donor: '',
+                targetLocations: '',
+
+                // 2. Background & Rationale
+                projectNarrative: '',
+
+                // 3. Project Objectives & Goals
+                generalObjective: '',
+                specificObjectives: '',
+                expectedOutcomes: '',
+
+                // 4. Target Beneficiaries
+                beneficiaries: {
+                    idps: '',
+                    returnees: '',
+                    hostCommunity: '',
+                    children: {
+                        boys: '',
+                        girls: ''
+                    },
+                    teachers: '',
+                    schools: ''
+                },
+
+                // 5. Project Components & Activities
+                components: {
+                    educationSupport: '',
+                    teacherTraining: '',
+                    infrastructure: '',
+                    childProtection: '',
+                    communityEngagement: ''
+                },
+
+                // 6. Sustainability
+                accountabilityStrategy: '',
+                sustainabilityStrategy: '',
+                exitStrategy: ''
+            };
+            projects.push(newProject);
+            renderProjects();
+        }
+
+        function createProjectCard(project) {
+            return `
+                <div class="project-card" id="project-${project.id}">
+                    <div class="project-header">
+                        <h2>${project.projectTitle || 'New Project'}</h2>
+                        <button class="edit-btn" onclick="editProject(${project.id})">Edit</button>
+                    </div>
+
+                    <div class="section">
+                        <h3>Project Overview</h3>
+                        <div class="project-field">
+                            <div class="field-label">Organization Name</div>
+                            <div class="field-value">${project.organizationName || 'Not set'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Budget (USD)</div>
+                            <div class="field-value">${project.budget || 'Not set'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Duration</div>
+                            <div class="field-value">${project.projectDuration || 'Not set'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Implementing Partner</div>
+                            <div class="field-value">${project.implementingPartner || 'Not set'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Donor</div>
+                            <div class="field-value">${project.donor || 'Not set'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Target Location(s)</div>
+                            <div class="field-value">${project.targetLocations || 'Not set'}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Background & Rationale</h3>
+                        <div class="project-field">
+                            <div class="field-value">${project.projectNarrative || 'No narrative added'}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Target Beneficiaries</h3>
+                        <div class="beneficiaries-grid">
+                            <div class="project-field">
+                                <div class="field-label">IDPs</div>
+                                <div class="field-value">${project.beneficiaries.idps || '0'}</div>
+                            </div>
+                            <div class="project-field">
+                                <div class="field-label">Returnees</div>
+                                <div class="field-value">${project.beneficiaries.returnees || '0'}</div>
+                            </div>
+                            <div class="project-field">
+                                <div class="field-label">Host Community</div>
+                                <div class="field-value">${project.beneficiaries.hostCommunity || '0'}</div>
+                            </div>
+                            <div class="project-field">
+                                <div class="field-label">Boys</div>
+                                <div class="field-value">${project.beneficiaries.children.boys || '0'}</div>
+                            </div>
+                            <div class="project-field">
+                                <div class="field-label">Girls</div>
+                                <div class="field-value">${project.beneficiaries.children.girls || '0'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Project Components</h3>
+                        <div class="project-field">
+                            <div class="field-label">Education Support</div>
+                            <div class="field-value">${project.components.educationSupport || 'Not specified'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Teacher Training</div>
+                            <div class="field-value">${project.components.teacherTraining || 'Not specified'}</div>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Infrastructure</div>
+                            <div class="field-value">${project.components.infrastructure || 'Not specified'}</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Sustainability</h3>
+                        <div class="project-field">
+                            <div class="field-label">Exit Strategy</div>
+                            <div class="field-value">${project.exitStrategy || 'Not specified'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createEditForm(project) {
+            return `
+                <div class="project-card" id="project-${project.id}">
+                    <div class="project-header">
+                        <h2>Project Documentation</h2>
+                        <div class="button-group">
+                            <button class="save-btn" onclick="saveProject(${project.id})" style="display: none;">Save</button>
+                            <button class="edit-btn" onclick="editProject(${project.id})">Edit</button>
+                        </div>
+                    </div>
+
+                    <!-- 1. Project Overview -->
+                    <div class="section">
+                        <h3><span class="section-number">1</span>Project Overview</h3>
+                        <div class="project-field">
+                            <div class="field-label">Name of Organization</div>
+                            <input class="field-input" type="text" id="organizationName-${project.id}" value="${project.organizationName || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Project Title</div>
+                            <input class="field-input" type="text" id="projectTitle-${project.id}" value="${project.projectTitle || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Project Budget & Resource Allocation (USD)</div>
+                            <input class="field-input" type="number" id="budget-${project.id}" value="${project.budget || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Project Duration</div>
+                            <input class="field-input" type="text" id="projectDuration-${project.id}" value="${project.projectDuration || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Implementing Partner</div>
+                            <input class="field-input" type="text" id="implementingPartner-${project.id}" value="${project.implementingPartner || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Donor</div>
+                            <input class="field-input" type="text" id="donor-${project.id}" value="${project.donor || ''}">
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Target Location(s)</div>
+                            <input class="field-input" type="text" id="targetLocations-${project.id}" value="${project.targetLocations || ''}">
+                        </div>
+                    </div>
+
+                    <!-- 2. Background & Rationale -->
+                    <div class="section">
+                        <h3><span class="section-number">2</span>Background & Rationale</h3>
+                        <div class="project-field">
+                            <div class="field-label">Project Narrative</div>
+                            <textarea class="field-input" id="projectNarrative-${project.id}" rows="4">${project.projectNarrative || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- 3. Project Objectives & Goals -->
+                    <div class="section">
+                        <h3><span class="section-number">3</span>Project Objectives & Goals</h3>
+                        <div class="project-field">
+                            <div class="field-label">General Objective</div>
+                            <textarea class="field-input" id="generalObjective-${project.id}" rows="3">${project.generalObjective || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Specific Objectives</div>
+                            <textarea class="field-input" id="specificObjectives-${project.id}" rows="3">${project.specificObjectives || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Expected Outcomes</div>
+                            <textarea class="field-input" id="expectedOutcomes-${project.id}" rows="3">${project.expectedOutcomes || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- 4. Target Beneficiaries -->
+                    <div class="section">
+                        <h3><span class="section-number">4</span>Target Beneficiaries</h3>
+                        
+                        <h4 class="subsection-title">Children</h4>
+                        <table class="beneficiaries-table">
+                            <thead>
+                                <tr>
+                                    <th>IDPs Children</th>
+                                    <th>Returnees Children</th>
+                                    <th>Host Community Children</th>
+                                    <th>Number of Boys Children</th>
+                                    <th>Number of Girls Children</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input class="field-input" type="number" id="idpsChildren-${project.id}" 
+                                            value="${project.beneficiaries?.children?.idps || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="returneesChildren-${project.id}" 
+                                            value="${project.beneficiaries?.children?.returnees || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="hostCommunityChildren-${project.id}" 
+                                            value="${project.beneficiaries?.children?.hostCommunity || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="boysChildren-${project.id}" 
+                                            value="${project.beneficiaries?.children?.boys || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="girlsChildren-${project.id}" 
+                                            value="${project.beneficiaries?.children?.girls || ''}" min="0">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 class="subsection-title">Adults</h4>
+                        <table class="beneficiaries-table">
+                            <thead>
+                                <tr>
+                                    <th>IDPs Adult</th>
+                                    <th>Returnees Adult</th>
+                                    <th>Host Community Adult</th>
+                                    <th>Number of Boys Adult</th>
+                                    <th>Number of Girls Adult</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <input class="field-input" type="number" id="idpsAdult-${project.id}" 
+                                            value="${project.beneficiaries?.adults?.idps || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="returneesAdult-${project.id}" 
+                                            value="${project.beneficiaries?.adults?.returnees || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="hostCommunityAdult-${project.id}" 
+                                            value="${project.beneficiaries?.adults?.hostCommunity || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="boysAdult-${project.id}" 
+                                            value="${project.beneficiaries?.adults?.boys || ''}" min="0">
+                                    </td>
+                                    <td>
+                                        <input class="field-input" type="number" id="girlsAdult-${project.id}" 
+                                            value="${project.beneficiaries?.adults?.girls || ''}" min="0">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 5. Project Components & Activities -->
+                    <div class="section">
+                        <h3><span class="section-number">5</span>Project Components & Activities</h3>
+                        <div class="project-field">
+                            <div class="field-label">Formal and Non-Formal Education Support</div>
+                            <textarea class="field-input" id="educationSupport-${project.id}" rows="3">${project.components?.educationSupport || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Teacher Training and Capacity Building</div>
+                            <textarea class="field-input" id="teacherTraining-${project.id}" rows="3">${project.components?.teacherTraining || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">School Infrastructure and Learning Materials</div>
+                            <textarea class="field-input" id="infrastructure-${project.id}" rows="3">${project.components?.infrastructure || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Child Protection and Psychosocial Support</div>
+                            <textarea class="field-input" id="childProtection-${project.id}" rows="3">${project.components?.childProtection || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Community Engagement and Advocacy</div>
+                            <textarea class="field-input" id="communityEngagement-${project.id}" rows="3">${project.components?.communityEngagement || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- 6. Accountability -->
+                    <div class="section">
+                        <h3><span class="section-number">6</span>Accountability to Affected Population Strategy</h3>
+                        <div class="project-field">
+                            <textarea class="field-input" id="accountabilityStrategy-${project.id}" rows="4">${project.accountabilityStrategy || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- 7. Sustainability and Exit Strategy -->
+                    <div class="section">
+                        <h3><span class="section-number">7</span>Sustainability and Exit Strategy</h3>
+                        <div class="project-field">
+                            <div class="field-label">Long-Term Impact Plans</div>
+                            <textarea class="field-input" id="sustainabilityStrategy-${project.id}" rows="3">${project.sustainabilityStrategy || ''}</textarea>
+                        </div>
+                        <div class="project-field">
+                            <div class="field-label">Handover to Local Authorities/Communities</div>
+                            <textarea class="field-input" id="exitStrategy-${project.id}" rows="3">${project.exitStrategy || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function editProject(projectId) {
+            // Enable all inputs and make them editable
+            const inputs = document.querySelectorAll('.field-input');
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.readOnly = false;
+                input.classList.add('editing');
+            });
+            
+            // Toggle buttons
+            const buttonGroup = document.querySelector('.button-group');
+            const saveBtn = buttonGroup.querySelector('.save-btn');
+            const editBtn = buttonGroup.querySelector('.edit-btn');
+            
+            saveBtn.style.display = 'inline-block';
+            editBtn.style.display = 'none';
+        }
+
+        function saveProject(projectId) {
+            let project = projects.find(p => p.id === projectId);
+            
+            if (!project) {
+                project = { id: projectId };
+                projects.push(project);
+            }
+            
+            // Save beneficiaries data with correct structure
+            project.beneficiaries = {
+                children: {
+                    idps: document.getElementById(`idpsChildren-${projectId}`).value,
+                    returnees: document.getElementById(`returneesChildren-${projectId}`).value,
+                    hostCommunity: document.getElementById(`hostCommunityChildren-${projectId}`).value,
+                    boys: document.getElementById(`boysChildren-${projectId}`).value,
+                    girls: document.getElementById(`girlsChildren-${projectId}`).value
+                },
+                adults: {
+                    idps: document.getElementById(`idpsAdult-${projectId}`).value,
+                    returnees: document.getElementById(`returneesAdult-${projectId}`).value,
+                    hostCommunity: document.getElementById(`hostCommunityAdult-${projectId}`).value,
+                    boys: document.getElementById(`boysAdult-${projectId}`).value,
+                    girls: document.getElementById(`girlsAdult-${projectId}`).value
+                }
+            };
+
+            // Save other project data
+            project.organizationName = document.getElementById(`organizationName-${projectId}`).value;
+            project.projectTitle = document.getElementById(`projectTitle-${projectId}`).value;
+            project.budget = document.getElementById(`budget-${projectId}`).value;
+            project.projectDuration = document.getElementById(`projectDuration-${projectId}`).value;
+            project.implementingPartner = document.getElementById(`implementingPartner-${projectId}`).value;
+            project.donor = document.getElementById(`donor-${projectId}`).value;
+            project.targetLocations = document.getElementById(`targetLocations-${projectId}`).value;
+            project.projectNarrative = document.getElementById(`projectNarrative-${projectId}`).value;
+            project.generalObjective = document.getElementById(`generalObjective-${projectId}`).value;
+            project.specificObjectives = document.getElementById(`specificObjectives-${projectId}`).value;
+            project.expectedOutcomes = document.getElementById(`expectedOutcomes-${projectId}`).value;
+            project.components = {
+                educationSupport: document.getElementById(`educationSupport-${projectId}`).value,
+                teacherTraining: document.getElementById(`teacherTraining-${projectId}`).value,
+                infrastructure: document.getElementById(`infrastructure-${projectId}`).value,
+                childProtection: document.getElementById(`childProtection-${projectId}`).value,
+                communityEngagement: document.getElementById(`communityEngagement-${projectId}`).value
+            };
+            project.accountabilityStrategy = document.getElementById(`accountabilityStrategy-${projectId}`).value;
+            project.sustainabilityStrategy = document.getElementById(`sustainabilityStrategy-${projectId}`).value;
+            project.exitStrategy = document.getElementById(`exitStrategy-${projectId}`).value;
+
+            // Toggle edit state
+            const inputs = document.querySelectorAll('.field-input');
+            inputs.forEach(input => {
+                input.readOnly = true;
+                input.classList.remove('editing');
+            });
+
+            // Toggle buttons
+            const buttonGroup = document.querySelector('.button-group');
+            const saveBtn = buttonGroup.querySelector('.save-btn');
+            const editBtn = buttonGroup.querySelector('.edit-btn');
+            
+            saveBtn.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+
+            // Save to localStorage
+            localStorage.setItem('currentProject', JSON.stringify(project));
+            
+            // Log to verify data is saved
+            console.log('Saved project:', project);
+        }
+
+        // Update the renderProjects function to use existing project data if available
+        function renderProjects() {
+            const container = document.getElementById('projects-container');
+            
+            // Try to get project from localStorage
+            const savedProject = localStorage.getItem('currentProject');
+            const project = savedProject ? JSON.parse(savedProject) : {
+                id: Date.now(),
+                organizationName: '',
+                projectTitle: '',
+                // ...rest of the default project structure...
+            };
+            
+            if (!projects.length && savedProject) {
+                projects.push(project);
+            }
+            
+            container.innerHTML = createEditForm(project);
+
+            // Make all inputs read-only initially
+            const inputs = document.querySelectorAll('.field-input');
+            inputs.forEach(input => {
+                input.readOnly = true;
+                input.disabled = false; // Not disabled, just readonly
+            });
+
+            // Initially hide save button, show edit button
+            const saveBtn = document.querySelector('.save-btn');
+            const editBtn = document.querySelector('.edit-btn');
+            if (saveBtn && editBtn) {
+                saveBtn.style.display = 'none';
+                editBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Initialize on page load
+        window.onload = () => {
+            renderProjects();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+   
+   <style>
+       
+        /* Replace all existing style content with this */
+        * {
+            font-family: 'Roboto', sans-serif;
+            font-size: 11px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px 6px;
+            text-align: left;
+            line-height: 1.2;
+            max-height: 24px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: 500;
+        }
+
+        .download-btn {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .submission-count {
+            background-color: #2ecc71;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        table tr {
+            height: 24px;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .filter-section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section input[type="month"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 30px;
+            font-weight: 1000;
+            color: #0354a5;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .logo {
+            height: 40px;  /* Adjust this value to match your desired logo size */
+            width: auto;
+            object-fit: contain;
+        }
+
+        .admin-btn {
+            background-color: #2980b9;
+            min-width: 150px;
+            white-space: nowrap;
+        }
+
+        .admin-btn:hover {
+            background-color: #2471a3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .admin-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+    </style>
+</head>
+  </style>
+
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <img src="EiEWG_nigeria_logo.ico" alt="Education Sector Logo" class="logo">
+        <h1>Education Sector Submitted Response Data (5Ws)</h1>
+    </div>
+    
+    <div class="filter-section">
+        <label for="monthFilter">Filter by Month:</label>
+        <input type="month" id="monthFilter" name="monthFilter">
+        <div class="button-group">
+            <button class="download-btn" onclick="downloadFilteredData()">Download Filtered Data</button>
+            <button class="download-btn" onclick="downloadAllData()">Download All Data</button>
+            <button class="download-btn admin-btn" onclick="window.location.href='admin-dashboard.html'">All User Details</button>
+        </div>
+    </div>
+
+    <div id="submissions-table"></div>
+     
+    <script>
+        function downloadAllData() {
+            try {
+                const submissions = [];
+                // Get all items from localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if (data) {
+                            // Add submission timestamp
+                            data.submissionTime = new Date().toISOString();
+                            submissions.push(data);
+                        }
+                    } catch (e) {
+                        console.warn('Skipping invalid entry:', key);
+                    }
+                }
+    
+                if (submissions.length === 0) {
+                    alert('No submissions found');
+                    return;
+                }
+    
+                // Create worksheet from submissions
+                const ws = XLSX.utils.json_to_sheet(submissions);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "All Submissions");
+    
+                // Generate Excel file with timestamp
+                const timestamp = new Date().toISOString().split('T')[0];
+                const fileName = `education_sector_submissions_${timestamp}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+                alert(`${submissions.length} submissions downloaded successfully!`);
+            } catch (error) {
+                console.error('Error downloading data:', error);
+                alert('Error downloading data. Please try again.');
+            }
+        }
+    
+        function displaySubmissions() {
+            try {
+                const submissions = [];
+                const submissionsTable = document.getElementById('submissions-table');
+                submissionsTable.innerHTML = '';
+    
+                // Collect all form submissions
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if (data) {
+                            submissions.push(data);
+                        }
+                    } catch (e) {
+                        console.warn('Skipping invalid entry:', key);
+                    }
+                }
+    
+                if (submissions.length === 0) {
+                    submissionsTable.innerHTML = '<p>No submissions found</p>';
+                    return;
+                }
+    
+                // Create and populate table
+                const table = document.createElement('table');
+                const headers = Array.from(new Set(submissions.flatMap(obj => Object.keys(obj))));
+                
+                // Add header row
+                const headerRow = document.createElement('tr');
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
+    
+                // Add data rows
+                submissions.forEach((submission, index) => {
+                    const row = document.createElement('tr');
+                    headers.forEach(header => {
+                        const td = document.createElement('td');
+                        td.textContent = submission[header] || '';
+                        row.appendChild(td);
+                    });
+                    table.appendChild(row);
+                });
+    
+                submissionsTable.appendChild(table);
+                
+                // Show total submissions count
+                const countDiv = document.createElement('div');
+                countDiv.className = 'submission-count';
+                countDiv.textContent = `Total Submissions: ${submissions.length}`;
+                submissionsTable.insertBefore(countDiv, table);
+    
+            } catch (error) {
+                console.error('Error displaying submissions:', error);
+                document.getElementById('submissions-table').innerHTML = 
+                    '<p>Error loading submissions. Please refresh the page.</p>';
+            }
+        }
+    
+        // Initialize table on page load
+        document.addEventListener('DOMContentLoaded', displaySubmissions);
+    
+        // Refresh table every 30 seconds
+        setInterval(displaySubmissions, 30000);
+
+function downloadFilteredData() {
+    try {
+        const monthFilter = document.getElementById('monthFilter').value;
+        if (!monthFilter) {
+            alert('Please select a month to filter');
+            return;
+        }
+
+        const submissions = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            try {
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data && data.reportingMonth) {
+                    // Convert reportingMonth to YYYY-MM format for comparison
+                    const submissionMonth = data.reportingMonth.substring(0, 7);
+                    if (submissionMonth === monthFilter) {
+                        data.submissionTime = new Date().toISOString();
+                        submissions.push(data);
+                    }
+                }
+            } catch (e) {
+                console.warn('Skipping invalid entry:', key);
+            }
+        }
+
+        if (submissions.length === 0) {
+            alert('No submissions found for the selected month');
+            return;
+        }
+
+        // Create worksheet from filtered submissions
+        const ws = XLSX.utils.json_to_sheet(submissions);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Filtered Submissions");
+
+        // Generate Excel file with month filter
+        const fileName = `education_sector_submissions_${monthFilter}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        alert(`${submissions.length} submissions downloaded successfully for ${monthFilter}!`);
+    } catch (error) {
+        console.error('Error downloading filtered data:', error);
+        alert('Error downloading data. Please try again.');
+    }
+}
+
+
+function downloadFilteredData() {
+    try {
+        const monthFilter = document.getElementById('monthFilter').value;
+        if (!monthFilter) {
+            alert('Please select a month to filter');
+            return;
+        }
+
+        const submissions = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            try {
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data && data.reportingMonth) {
+                    // Convert reportingMonth to YYYY-MM format for comparison
+                    const submissionMonth = data.reportingMonth.substring(0, 7);
+                    if (submissionMonth === monthFilter) {
+                        data.submissionTime = new Date().toISOString();
+                        submissions.push(data);
+                    }
+                }
+            } catch (e) {
+                console.warn('Skipping invalid entry:', key);
+            }
+        }
+
+        if (submissions.length === 0) {
+            alert('No submissions found for the selected month');
+            return;
+        }
+
+        // Create worksheet from filtered submissions
+        const ws = XLSX.utils.json_to_sheet(submissions);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Filtered Submissions");
+
+        // Generate Excel file with month filter
+        const fileName = `education_sector_submissions_${monthFilter}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        alert(`${submissions.length} submissions downloaded successfully for ${monthFilter}!`);
+    } catch (error) {
+        console.error('Error downloading filtered data:', error);
+        alert('Error downloading data. Please try again.');
+    }
+}
+
+    </script>
+    
+</body>
+</html>

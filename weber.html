@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Collection Form</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+
+      body {
+        font-family: "Roboto", sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+background-color: #f5f5f5;
+
+.logo {
+            height: 40px;  /* Adjust this value to match your desired logo size */
+            width: auto;
+            object-fit: contain;
+      }
+    </style>
+
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+      
+    
+    <script>function saveFormData() {
+          const form = document.querySelector('form');
+          const formData = new FormData(form);
+          const data = {};
+          
+          formData.forEach((value, key) => {
+              data[key] = value;
+          });
+          
+          localStorage.setItem('formData', JSON.stringify(data));
+          alert('Form data saved successfully!');
+      }
+      function saveFormData() {
+          const form = document.querySelector('form');
+          const formData = new FormData(form);
+          const data = {};
+          
+          formData.forEach((value, key) => {
+              data[key] = value;
+          });
+          
+          localStorage.setItem('formData', JSON.stringify(data));
+          alert('Form data saved successfully!');
+      }
+      
+      function loadSavedFormData() {
+          const savedData = localStorage.getItem('formData');
+          if (savedData) {
+              const data = JSON.parse(savedData);
+              const form = document.querySelector('form');
+              
+              Object.keys(data).forEach(key => {
+                  const input = form.querySelector(`[name="${key}"]`);
+                  if (input) {
+                      if (input.type === 'checkbox') {
+                          input.checked = data[key];
+                      } else {
+                          input.value = data[key];
+                      }
+                  }
+              });
+          }
+      }
+      </script>
+          
+      <script>
+          function downloadAllData() {
+              try {
+                  const submissions = [];
+                  for (let i = 0; i < localStorage.length; i++) {
+                      const key = localStorage.key(i);
+                      if (key.startsWith('formData')) {
+                          submissions.push(JSON.parse(localStorage.getItem(key)));
+                      }
+                  }
+      
+                  if (submissions.length === 0) {
+                      alert('No submissions found');
+                      return;
+                  }
+      
+                  // Create worksheet from submissions
+                  const ws = XLSX.utils.json_to_sheet(submissions);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, "All Submissions");
+      
+                  // Generate Excel file with timestamp
+                  const timestamp = new Date().toISOString().split('T')[0];
+                  const fileName = `all_submissions_${timestamp}.xlsx`;
+                  XLSX.writeFile(wb, fileName);
+                  
+                  alert('Data downloaded successfully!');
+              } catch (error) {
+                  console.error('Error downloading data:', error);
+                  alert('Error downloading data. Please try again.');
+              }
+          }
+      
+          function displaySubmissions() {
+              try {
+                  const submissions = [];
+                  const submissionsTable = document.getElementById('submissions-table');
+                  submissionsTable.innerHTML = ''; // Clear existing content
+      
+                  // Collect all form submissions
+                  for (let i = 0; i < localStorage.length; i++) {
+                      const key = localStorage.key(i);
+                      if (key.startsWith('formData')) {
+                          const data = JSON.parse(localStorage.getItem(key));
+                          if (data) submissions.push(data);
+                      }
+                  }
+      
+                  if (submissions.length === 0) {
+                      submissionsTable.innerHTML = '<p>No submissions found</p>';
+                      return;
+                  }
+      
+                  // Create and populate table
+                  const table = document.createElement('table');
+                  const headers = Object.keys(submissions[0]);
+                  
+                  // Add header row
+                  const headerRow = document.createElement('tr');
+                  headers.forEach(header => {
+                      const th = document.createElement('th');
+                      th.textContent = header;
+                      headerRow.appendChild(th);
+                  });
+                  table.appendChild(headerRow);
+      
+                  // Add data rows
+                  submissions.forEach(submission => {
+                      const row = document.createElement('tr');
+                      headers.forEach(header => {
+                          const td = document.createElement('td');
+                          td.textContent = submission[header] || '';
+                          row.appendChild(td);
+                      });
+                      table.appendChild(row);
+                  });
+      
+                  submissionsTable.appendChild(table);
+              } catch (error) {
+                  console.error('Error displaying submissions:', error);
+                  document.getElementById('submissions-table').innerHTML = 
+                      '<p>Error loading submissions. Please refresh the page.</p>';
+              }
+          }
+          
+          // Initialize table on page load
+          document.addEventListener('DOMContentLoaded', displaySubmissions);
+      
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', loadSavedFormData);
+   
+      </script>
+
+     <style>
+      form {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+     
+      h2 {
+        font-family: "Roboto", sans-serif;
+        color: #0354a5;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-top: 30px;
+
+        
+      }
+
+      label {
+        display: inline-block;
+        width: 250px;
+        margin-bottom: 5px;
+        color: #34495e;
+        font-family: "Roboto", sans-serif;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 300px;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      input[type="button"],
+      input[type="submit"] {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      input[type="button"]:hover,
+      input[type="submit"]:hover {
+        background-color: #2980b9;
+      }
+
+    /* ...existing styles... */
+    
+    #submissions-table p {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .error-message {
+        color: #e74c3c;
+        text-align: center;
+        padding: 10px;
+        margin: 10px 0;
+        background-color: #fadbd8;
+        border-radius: 4px;
+    }
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.button-container input[type="button"],
+.button-container input[type="submit"],
+.button-container .logout-btn {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.button-container input[type="button"]:hover,
+.button-container input[type="submit"]:hover,
+.button-container .logout-btn:hover {
+    background-color: #2980b9;
+}
+
+.logout-btn {
+    font-family: "Roboto", sans-serif;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-back {
+    background-color: #1e3c72;
+    border: none;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 200;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30,60,114,0.2);
+}
+
+/* Add this CSS to your existing <style> section */
+#activity-container {
+    width: 300px;  /* Match width of other form inputs */
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.activity-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.activity-entry select {
+    width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: "Roboto", sans-serif;
+}
+
+.activity-entry input[type="text"] {
+    width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-family: "Roboto", sans-serif;
+}
+
+.activity-entry button {
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 40px;
+    height: 35px;
+    margin-top: 1px;
+}
+
+.activity-entry button:hover {
+    background-color: #2980b9;
+}
+
+/* Adjust the label alignment */
+label[for="activities"] {
+    display: inline-block;
+    width: 250px;
+    vertical-align: top;
+    margin-top: 5px;
+}
+</style>
+
+<style>
+.header-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header-title {
+    margin: 0;
+    padding: 0;
+    font-size: 1.4rem;
+    color: #0354a5;
+    font-weight: 500;
+    border-bottom: none;  /* Remove the border-bottom */
+}
+
+/* Override any other styles that might be adding the line */
+.header-container h2 {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+</style>
+
+<script>
+  function saveFormData() {
+      const form = document.querySelector('form');
+      const formData = new FormData(form);
+      const data = {};
+      
+      formData.forEach((value, key) => {
+          data[key] = value;
+      });
+      
+      localStorage.setItem('formData', JSON.stringify(data));
+      alert('Form data saved successfully!');
+  }
+  
+  function loadSavedFormData() {
+      const savedData = localStorage.getItem('formData');
+      if (savedData) {
+          const data = JSON.parse(savedData);
+          const form = document.querySelector('form');
+          
+          Object.keys(data).forEach(key => {
+              const input = form.querySelector(`[name="${key}"]`);
+              if (input) {
+                  if (input.type === 'checkbox') {
+                      input.checked = data[key];
+                  } else {
+                      input.value = data[key];
+                  }
+              }
+          });
+      }
+  }
+  
+    // Replace the existing submitForm function with this updated version:
+  function submitForm(event) {
+      event.preventDefault();
+      const form = document.querySelector('form');
+      const formData = new FormData(form);
+      const data = {};
+      
+      // Convert FormData to object and validate required fields
+      let hasErrors = false;
+      formData.forEach((value, key) => {
+          data[key] = value;
+          // Check if required field is empty
+          const field = form.querySelector(`[name="${key}"]`);
+          if (field && field.hasAttribute('required') && !value) {
+              hasErrors = true;
+              field.classList.add('error');
+          }
+      });
+  
+      if (hasErrors) {
+          alert('Please fill in all required fields');
+          return;
+      }
+  
+      // Store the submission with a unique timestamp key
+      const timestamp = new Date().toISOString();
+      const submissionKey = `formData_${timestamp}`;
+      localStorage.setItem(submissionKey, JSON.stringify(data));
+  
+      // Clear the form and show success message
+      alert('Form submitted successfully!');
+      form.reset();
+      
+      // Refresh the submissions display
+      displaySubmissions();
+  }
+  
+  // Add this CSS to style error fields
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+      .error {
+          border: 2px solid #ff0000;
+      }
+      
+      input:focus.error,
+      select:focus.error,
+      textarea:focus.error {
+          outline: none;
+          border-color: #ff0000;
+          box-shadow: 0 0 5px #ff0000;
+      }
+  `;
+  document.head.appendChild(styleElement);
+
+</script>
+
+
+    <script>
+      const statePcodes = {
+        Adamawa: "NGA002",
+        Borno: "NGA008",
+        Yobe: "NGA036",
+      };
+
+      const lgaData = {
+        Adamawa: [
+          { name: "Yola South", pcode: "NG002021" },
+          { name: "Yola North", pcode: "NG002020" },
+          { name: "Mubi North", pcode: "NG002014" },
+          { name: "Mayo-Belwa", pcode: "NG002012" },
+          { name: "Ganye", pcode: "NG002003" },
+          { name: "Shelleng", pcode: "NG002017" },
+          { name: "Hong", pcode: "NG002007" },
+          { name: "Guyuk", pcode: "NG002006" },
+          { name: "Numan", pcode: "NG002016" },
+          { name: "Michika", pcode: "NG002013" },
+          { name: "Madagali", pcode: "NG002010" },
+          { name: "Maiha", pcode: "NG002011" },
+          { name: "Fufore", pcode: "NG002002" },
+          { name: "Demsa", pcode: "NG002001" },
+          { name: "Gombi", pcode: "NG002004" },
+          { name: "Girei", pcode: "NG002005" },
+          { name: "Jada", pcode: "NG002008" },
+          { name: "Toungo", pcode: "NG002019" },
+          { name: "Mubi South", pcode: "NG002015" },
+          { name: "Song", pcode: "NG002018" },
+          { name: "Lamurde", pcode: "NG002009" },
+        ],
+        Borno: [
+          { name: "Marte", pcode: "NG008022" },
+          { name: "Bama", pcode: "NG008003" },
+          { name: "Guzamala", pcode: "NG008010" },
+          { name: "Dikwa", pcode: "NG008008" },
+          { name: "Damboa", pcode: "NG008007" },
+          { name: "Konduga", pcode: "NG008016" },
+          { name: "Mafa", pcode: "NG008019" },
+          { name: "Kukawa", pcode: "NG008017" },
+          { name: "Nganzai", pcode: "NG008026" },
+          { name: "Jere", pcode: "NG008013" },
+          { name: "Gubio", pcode: "NG008009" },
+          { name: "Magumeri", pcode: "NG008020" },
+          { name: "Abadam", pcode: "NG008001" },
+          { name: "Mobbar", pcode: "NG008023" },
+          { name: "Gwoza", pcode: "NG008011" },
+          { name: "Askira/Uba", pcode: "NG008002" },
+          { name: "Bayo", pcode: "NG008004" },
+          { name: "Shani", pcode: "NG008027" },
+          { name: "Kaga", pcode: "NG008014" },
+          { name: "Kwaya Kusar", pcode: "NG008018" },
+          { name: "Hawul", pcode: "NG008012" },
+          { name: "Maiduguri", pcode: "NG008021" },
+          { name: "Biu", pcode: "NG008005" },
+          { name: "Kala/Balge", pcode: "NG008015" },
+          { name: "Monguno", pcode: "NG008024" },
+          { name: "Ngala", pcode: "NG008025" },
+          { name: "Chibok", pcode: "NG008006" },
+        ],
+        Yobe: [
+          { name: "Nguru", pcode: "NG036013" },
+          { name: "Fune", pcode: "NG036005" },
+          { name: "Geidam", pcode: "NG036006" },
+          { name: "Tarmua", pcode: "NG036015" },
+          { name: "Gulani", pcode: "NG036008" },
+          { name: "Potiskum", pcode: "NG036014" },
+          { name: "Bursari", pcode: "NG036002" },
+          { name: "Damaturu", pcode: "NG036003" },
+          { name: "Machina", pcode: "NG036011" },
+          { name: "Jakusko", pcode: "NG036009" },
+          { name: "Karasuwa", pcode: "NG036010" },
+          { name: "Yusufari", pcode: "NG036017" },
+          { name: "Yunusari", pcode: "NG036016" },
+          { name: "Gujba", pcode: "NG036007" },
+          { name: "Nangere", pcode: "NG036012" },
+          { name: "Bade", pcode: "NG036001" },
+          { name: "Fika", pcode: "NG036004" },
+        ],
+      };
+
+      function updateStatePcode() {
+        const stateSelect = document.getElementById("state");
+        const statePcodeInput = document.getElementById("statePcode");
+        statePcodeInput.value = statePcodes[stateSelect.value];
+        updateLgaOptions();
+      }
+
+      function updateLgaOptions() {
+        const stateSelect = document.getElementById("state");
+        const lgaSelect = document.getElementById("lga");
+        const lgaPcodeInput = document.getElementById("lgaPcode");
+        const selectedState = stateSelect.value;
+
+        // Clear existing options
+        lgaSelect.innerHTML = "";
+
+        // Populate new options
+        lgaData[selectedState].forEach((lga) => {
+          const option = document.createElement("option");
+          option.value = lga.pcode;
+          option.text = lga.name;
+          lgaSelect.add(option);
+        });
+
+        // Update LGA Pcode
+        lgaPcodeInput.value = lgaSelect.value;
+      }
+
+      function updateLgaPcode() {
+        const lgaSelect = document.getElementById("lga");
+        const lgaPcodeInput = document.getElementById("lgaPcode");
+        lgaPcodeInput.value = lgaSelect.value;
+      }
+    </script>
+  </head>
+  <body>
+
+    <div class="header-buttons">
+      <a href="index.html" class="back-btn"></a>
+    </div>
+    <form>
+      <div class="header-container">
+        <img src="EiEWG_nigeria_logo.ico" alt="Education Sector Logo" class="logo">
+        <h2 class="header-title">NIGERIA: Education Sector Monthly Report</h2>
+      </div>
+    
+  
+      
+      <h2>Project Information</h2>
+
+      <label for="sector">Sector:</label>
+      <select id="sector" name="sector" required>
+        <option value="" disabled selected>Select a sector</option>
+        <option value="Education">Education sector</option>
+      </select>
+      <br /><br />
+
+      <label for="Project title">Project title</label>
+      <input
+        type="text"
+        id="Project title"
+        name="Project title"
+        required
+      /><br /><br />
+
+      <label for="reportingMonth">Reporting Month</label>
+      <input
+        type="date"
+        id="reportingMonth"
+        name="reportingMonth"
+        required
+      /><br /><br />
+
+      <label for="dateOfReporting">Date of Reporting</label>
+      <input
+        type="date"
+        id="dateOfReporting"
+        name="dateOfReporting"
+        required
+      /><br /><br />
+
+      <h2>Who</h2>
+      <label for="reportingOrganization">Reporting Organization:</label>
+      <select
+        id="reportingOrganization"
+        name="reportingOrganization"
+        required
+        onchange="updateAcronym()"
+      >
+        <option value="" disabled selected>Select an organization</option>
+        <option value="ActionAid">Action Aid</option>
+        <option value="ASPC">Adamawa State Planning Commission</option>
+        <option value="AAC">Adopt-A-Camp</option>
+        <option value="ADRA">Adventist Development And Relief Agency</option>
+        <option value="AUN">American University of Nigeria</option>
+        <option value="AoH">Arm of Hope</option>
+        <option value="BENCOWA">Benue Cooperative Women Alliance</option>
+        <option value="BAC">Borno Action Coalition</option>
+        <option value="BCDP">Borno Coalition for Democracy and Progress</option>
+        <option value="BOSISA">Borno Islamiyya Schools Association</option>
+        <option value="BoSMoE">Borno State Ministry of Education</option>
+        <option value="BOSUBEB">
+          Borno State Universal Basic Education Board
+        </option>
+        <option value="BC">British Council</option>
+        <option value="CARITAS">Caritas</option>
+        <option value="CCFN">Catholic Caritas Foundation of Nigeria</option>
+        <option value="CRS">Catholic Relief Services</option>
+        <option value="CATAI">
+          Center For Advocacy, Transparency & Accountability Initiative
+        </option>
+        <option value="CIVIC">Center for Civilians in Conflict</option>
+        <option value="CHAD">Center for Community Health Development</option>
+        <option value="CIDAR">
+          Center for Integrated Development and Research
+        </option>
+        <option value="CEPADR">
+          Centre for Peace Building and Disaster Relief
+        </option>
+        <option value="CWAE">
+          Centre for Women and Adolescent Empowerment
+        </option>
+        <option value="CPPLI">
+          Child Protection and Peer Learning Initiative
+        </option>
+        <option value="Christian Aid">Christian Aid</option>
+        <option value="CRI">Community Reachout Initiative</option>
+        <option value="CYPA">Community Youth Peacebuilding Association</option>
+        <option value="COSFON">Communal Support Foundation of Nigeria</option>
+        <option value="COOPI">Cooperazione Internazionale</option>
+        <option value="CAI">Creative Associates International</option>
+        <option value="DAG">Democratic Action Group</option>
+        <option value="ECR">Education Crisis Response</option>
+        <option value="eHealth Africa">eHealth Systems Africa</option>
+        <option value="ENRICH-INITIATIVE">
+          Enrich Girl Child Of Their Right Initiative
+        </option>
+        <option value="ECF">Environment Care Foundation</option>
+        <option value="FOMWAN">
+          Federation of Muslim Women's Associations in Nigeria
+        </option>
+        <option value="FAO">Food and Agriculture Organization</option>
+        <option value="GF">GEIDAMJIN Foundation</option>
+        <option value="GEPDC">
+          Gender Equality, Peace and Development Center
+        </option>
+        <option value="GRDM">Global Relief & Development Mission</option>
+        <option value="GPoN">GOALPrime Organization Nigeria</option>
+        <option value="GZDI">Goggoji Zumunchi Development Initiative</option>
+        <option value="GSF">Grow Strong Foundation</option>
+        <option value="GYM">Gumel Youth Movement</option>
+        <option value="HALI">Hallmark Leadership Initiative</option>
+        <option value="HARAF">Hope and Rural Aid Foundation</option>
+        <option value="ICRC">International Committee of the Red Cross</option>
+        <option value="IOM">International Organization for Migration</option>
+        <option value="IRC">International Rescue Committee</option>
+        <option value="MC">Mercy Corps</option>
+        <option value="NRCS">Nigerian Red Cross Society</option>
+        <option value="NRC">Norwegian Refugee Council</option>
+        <option value="OCHA">OCHA</option>
+        <option value="Oxfam">OXFAM International</option>
+        <option value="Plan">Plan International</option>
+        <option value="SCI">Save the Children International</option>
+        <option value="UNESCO">UNESCO</option>
+        <option value="UNHCR">UNHCR</option>
+        <option value="UNICEF">UNICEF</option>
+        <option value="UNFPA">United Nations Population Fund</option>
+        <option value="WHO">World Health Organization</option>
+        <option value="YOPCODI">
+          Yobe Peace and Community Development Initiative
+        </option>
+        <option value="YYPL">Yobe Youth Progressive Link</option>
+      </select>
+      <br /><br />
+
+      <label for="orgAcronym">Org. Acronym:</label>
+      <input type="text" id="orgAcronym" name="orgAcronym" readonly required />
+      <br /><br />
+
+      <script>
+        function updateAcronym() {
+          var orgDropdown = document.getElementById("reportingOrganization");
+          var acronymInput = document.getElementById("orgAcronym");
+          acronymInput.value = orgDropdown.value;
+        }
+      </script>
+
+      <label for="typeOfOrganization">Type of Organization:</label>
+      <select id="typeOfOrganization" name="typeOfOrganization" required>
+        <option value="" disabled selected>Select Type of Organization</option>
+        <option value="Government">Government</option>
+        <option value="Donor">Donor</option>
+        <option value="UN Agency">UN Agency</option>
+        <option value="INGOs">INGOs</option>
+        <option value="NNGOs">NNGOs</option>
+      </select>
+      <br /><br />
+
+      <label for="implementingPartner">Implementing Partner:</label>
+      <input
+        type="text"
+        id="implementingPartner"
+        name="implementingPartner"
+        required
+      /><br /><br />
+
+      <label for="ipAcronym">IP Acronym:</label>
+      <input type="text" id="ipAcronym" name="ipAcronym" required /><br /><br />
+
+      <label for="primaryDonor">Primary Donor:</label>
+      <select id="primaryDonor" name="primaryDonor" required>
+        <option value="" disabled selected>Select a donor</option>
+        <option value="Austrialian HC">Austrialian HC</option>
+        <option value="British HC">British HC</option>
+        <option value="DFID">DFID</option>
+        <option value="GIZ (GmbH)">GIZ (GmbH)</option>
+        <option value="E-Denmark">E-Denmark</option>
+        <option value="E-Filand">E-Filand</option>
+        <option value="E-Poland">E-Poland</option>
+        <option value="E-Sweden">E-Sweden</option>
+        <option value="E-Switzerland">E-Switzerland</option>
+        <option value="E-Netherlands">E-Netherlands</option>
+        <option value="ECHO">ECHO</option>
+        <option value="HC Canada">HC Canada</option>
+        <option value="JICA">JICA</option>
+        <option value="E-Japan">E-Japan</option>
+        <option value="G_Japan">G_Japan</option>
+        <option value="E-Norway">E-Norway</option>
+        <option value="SIDA">SIDA</option>
+        <option value="E-Swiss">E-Swiss</option>
+        <option value="USAID">USAID</option>
+        <option value="CERF">CERF</option>
+        <option value="GFFO">GFFO</option>
+        <option value="IrishAid">IrishAid</option>
+        <option value="NORAD">NORAD</option>
+        <option value="Netherlands">Netherlands</option>
+        <option value="Multiple">Multiple</option>
+        <option value="AUN">AUN</option>
+        <option value="EU">EU</option>
+        <option value="UBN">UBN</option>
+        <option value="FGN">FGN</option>
+        <option value="Self">Self</option>
+        <option value="NHF">NHF</option>
+        <option value="FCDO">FCDO</option>
+        <option value="ECW">ECW</option>
+        <option value="GPE">GPE</option>
+        <option value="CANADA">CANADA</option>
+        <option value="Global Fund for Children">
+          Global Fund for Children
+        </option>
+        <option value="Germany KFW">Germany KFW</option>
+        <option value="World Bank">World Bank</option>
+        <option value="AKO Foundation">AKO Foundation</option>
+        <option value="Equinor">Equinor</option>
+        <option value="Other">Other</option>
+      </select>
+      <br /><br />
+
+      <label for="secondaryDonor">Secondary Donor:</label>
+      <input
+        type="text"
+        id="secondaryDonor"
+        name="secondaryDonor"
+        required
+      /><br /><br />
+
+      <label for="secondaryDonorCategory">Secondary Donor (Category):</label>
+      <select
+        id="secondaryDonorCategory"
+        name="secondaryDonorCategory"
+        required
+      >
+        <option value="" disabled selected>Select Type of Organization</option>
+        <option value="Government">Government</option>
+        <option value="UN Agency">UN Agency</option>
+        <option value="INGOs">INGOs</option>
+        <option value="NNGOs">NNGOs</option>
+      </select>
+      <br /><br />
+
+      <h2>Where</h2>
+      <label for="state">State:</label>
+      <select id="state" name="state" onchange="updateStatePcode()" required>
+        <option value="Adamawa">Adamawa</option>
+        <option value="Borno">Borno</option>
+        <option value="Yobe">Yobe</option></select
+      ><br /><br />
+
+      <label for="statePcode">State Pcode:</label>
+      <input
+        type="text"
+        id="statePcode"
+        name="statePcode"
+        readonly
+        required
+      /><br /><br />
+
+      <label for="lga">LGA:</label>
+      <select id="lga" name="lga" onchange="updateLgaPcode()" required>
+        <!-- LGA options will be populated dynamically --></select
+      ><br /><br />
+
+      <label for="lgaPcode">LGA Pcode:</label>
+      <input
+        type="text"
+        id="lgaPcode"
+        name="lgaPcode"
+        readonly
+        required
+      /><br /><br />
+
+      <label for="ward">Ward:</label>
+      <input type="text" id="ward" name="ward" required /><br /><br />
+
+      <label for="communitySite">Community/ Site:</label>
+      <input
+        type="text"
+        id="communitySite"
+        name="communitySite"
+        required
+      /><br /><br />
+
+      <label for="latitude">Latitude:</label>
+      <input type="text" id="latitude" name="latitude" required /><br /><br />
+
+      <label for="longitude">Longitude:</label>
+      <input type="text" id="longitude" name="longitude" required /><br /><br />
+
+      <label for="typeOfSite">Type of Site:</label>
+      <select id="typeOfSite" name="typeOfSite" required>
+        <option value="" disabled selected>Select Type of Site</option>
+        <option value="Formal School">Formal School</option>
+        <option value="Non Formal Learning Centre (NFLC)">
+          Non Formal Learning Centre (NFLC)
+        </option>
+        <option value="Non Formal Program within Formal School">
+          Non Formal Program within Formal School
+        </option>
+      </select>
+      <br /><br />
+
+      <label for="levelOfEducation">Level of Education:</label>
+      <select id="levelOfEducation" name="levelOfEducation" required>
+        <option value="" disabled selected>Select Type of Site</option>
+        <option value="Pre - Primary (ECCE)">Pre - Primary (ECCE)</option>
+        <option value="Primary">Primary</option>
+        <option value="Junior Secondary (JSS)">Junior Secondary (JSS)</option>
+        <option value="Senior Secondary (SSS)">Junior Secondary (SSS)</option>
+      </select>
+
+      <label for="nameOfSchool">Name of School:</label>
+      <input
+        type="text"
+        id="nameOfSchool"
+        name="nameOfSchool"
+        required
+      /><br /><br />
+
+      <label for="beneficiaryType">Beneficiary Type:</label>
+      <select id="beneficiaryType" name="beneficiaryType" required>
+        <option value="" disabled selected>Beneficiary Type</option>
+        <option value="IDPs">IDPs</option>
+        <option value="Returnees">Returnees</option>
+        <option value="Host Community">Host Community</option>
+        <option value="Refugees">Refugees</option>
+        \
+      </select>
+
+      <h2>What</h2>
+      <label>Domain:</label><br />
+      <input type="checkbox" id="access" name="domain" value="access" />
+      <label for="access">Access</label><br />
+      <input type="checkbox" id="teaching" name="domain" value="teaching" />
+      <label for="teaching">Teaching</label><br />
+      <input
+        type="checkbox"
+        id="preparedness"
+        name="domain"
+        value="preparedness"
+      />
+      <label for="preparedness">Preparedness</label><br />
+      <input type="checkbox" id="facilities" name="domain" value="facilities" />
+      <label for="facilities">Fcilities </label><br />
+      <br /><br />
+
+      <label for="indicators">Indicators:</label>
+      <select id="indicators" name="indicators" required>
+        <option value="enrollment">Enrollment</option>
+        <option value="school_supplies">School supplies</option>
+        <option value="teacher_training">Teacher training</option>
+        <option value="sbmcs_training">SBMCs Training</option>
+        <option value="Classroom_wash_facility">
+          Classroom / WASH facility constructed or rehabilitated
+        </option></select
+      ><br /><br />
+
+      <label for="activities">Activities:</label>
+      <div id="activity-container">
+        <div class="activity-entry">
+          <select
+            name="activities[]"
+            required
+            onchange="toggleOtherInput(this)"
+            title="Select an activity"
+          >
+            <option value="learners_supportive_aids">
+              Learners receiving supportive aids e.g. eye lenses, hearing aids,
+              wheel chair, walking aids etc.
+            </option>
+            <option value="learning_stationary">
+              Provision of Learning Stationary
+            </option>
+            <option value="school_feeding">Provision of School Feeding</option>
+            <option value="school_mats">School mats provided</option>
+            <option value="blackboards">BlackBoards provided</option>
+            <option value="marker_boards">Marker Boards provided</option>
+            <option value="cash_transfers">
+              Children / Learners supported by cash-transfers
+            </option>
+            <option value="ecd_kit">
+              Early Childhood Development (ECD) kit provided
+            </option>
+            <option value="desks_provided">Desks provided to learners</option>
+            <option value="iec_materials">
+              Provision of Information, Education Communication Materials (IEC)
+            </option>
+            <option value="hygiene_dignity">Hygiene / Dignity</option>
+            <option value="learning_pack">
+              Learning pack (School Bags, Stationaries, Pencil, Ruler etc.)
+            </option>
+            <option value="unicef_sib">
+              UNICEF School in a Box (SiB) kits provided.
+            </option>
+            <option value="learners_disabilities">
+              Learners with disabilities enrolled
+            </option>
+            <option value="learners_enrolled">Learners enrolled</option>
+            <option value="back_to_school">Back to School Campaign</option>
+            <option value="vocational_training">
+              Children trained in vocational training
+            </option>
+            <option value="children_groups">
+              Schools that have children groups/clubs/recreation activities
+            </option>
+            <option value="cdrr_training">
+              Teachers/Volunteers trained in Conflict Disaster Risk Reduction
+              (CDRR)
+            </option>
+            <option value="hygiene_promotion">
+              Teachers/Volunteers receiving training in Hygiene Promotion
+            </option>
+            <option value="sbmc_cse">
+              SBMC members trained in Conflict Sensitive Education
+            </option>
+            <option value="sbmc_management">
+              SBMC members trained in school management
+            </option>
+            <option value="incentives">
+              Teachers/Volunteers receiving incentives/hardship allowance
+            </option>
+            <option value="pedagogy">
+              Teachers/Volunteers trained in Pedagogy
+            </option>
+            <option value="school_textbooks">
+              School Text Books provided to Teachers
+            </option>
+            <option value="sbmc_established">SBMC established</option>
+            <option value="sbmc_pfa">
+              SBMC members trained in Psychological First Aid
+            </option>
+            <option value="sbmc_pss">
+              SBMC members trained in Psychosocial Support
+            </option>
+            <option value="sbmc_cpe">
+              SBMC members trained on Child Protection in Emergencies
+            </option>
+            <option value="functional_sbmc">
+              Schools with functional SBMCs
+            </option>
+            <option value="tarl_training">
+              Teachers/Volunteers trained on Teaching at the Right Level (TaRL)
+            </option>
+            <option value="record_keeping">
+              Teachers/Volunteers trained on School Record Keeping
+            </option>
+            <option value="sbmc_drr">
+              SBMC members trained in Disaster Risk Reduction
+            </option>
+            <option value="pfa_training">
+              Train Teachers in Psychosocial First Aid (PFA)
+            </option>
+            <option value="teachers_cpe">
+              Teachers/Volunteers trained in Child Protection in Emergencies
+            </option>
+            <option value="teachers_child_rights">
+              Teachers/Volunteers trained in Child Rights
+            </option>
+            <option value="master_trainers_tarl">
+              Master trainers/Facilitators trained on Teaching at the Right
+              Level (TaRL)
+            </option>
+            <option value="school_safety">
+              Teachers/Volunteers trained in School Safety Plan and Management
+              and Child Protection
+            </option>
+            <option value="sbmc_facilitators">
+              SBMC Trainers / Facilitators trained in school management
+            </option>
+            <option value="child_centered_methodology">
+              Teachers/Volunteers trained on Child Centered Methodology
+            </option>
+            <option value="gbv_training">
+              Teachers/Volunteers trained in Gender Based Violence (GBV)
+            </option>
+            <option value="chairs_teachers">Chairs provided to teachers</option>
+            <option value="tables_teachers">Tables provided to teachers</option>
+            <option value="sbmc_special_needs">
+              SBMC committees trained in supporting the school to be special
+              needs friendly.
+            </option>
+            <option value="eccd_concepts">
+              Teachers/volunteers trained on Early Child Care Development (ECCD)
+              concepts
+            </option>
+            <option value="life_skills">
+              Teachers/Volunteers trained in Life Skills and Mine Risk Education
+            </option>
+            <option value="pss_training">
+              Teachers/Volunteers trained in Psychosocial support (PSS)
+            </option>
+            <option value="temporary_classrooms">
+              Establishment of Temporary Classrooms (TCs)
+            </option>
+            <option value="tls_constructed">
+              Temporary Learning Space (TLS) constructed - facility
+            </option>
+            <option value="wash_latrines">WASH facilities (Latrines)</option>
+            <option value="wash_handwashing">
+              WASH facilities (hand washing station)
+            </option>
+            <option value="cfs_established">
+              Child friendly space (CFS) established facility
+            </option>
+            <option value="classrooms_rehabilitated">
+              Classrooms rehabilitated facility
+            </option>
+            <option value="perimeter_fence">
+              Perimeter fence constructed facility
+            </option>
+            <option value="qa_record_keeping">
+              Quality Assurance (QA) Officers on School Record Keeping
+              (Government)
+            </option>
+            <option value="cc_training">
+              Community Coalitions (CCs) members trained (Government)
+            </option>
+            <option value="others">Others (Specify)</option>
+          </select>
+          <input
+            type="text"
+            name="otherActivity[]"
+            placeholder="Please specify"
+            style="display: none"
+          />
+          <button type="button" onclick="addActivityField()">+</button>
+          <button type="button" onclick="removeActivityField(this)">-</button>
+        </div>
+      </div>
+      <br /><br />
+
+      <script>
+        function toggleOtherInput(select) {
+          var otherInput = select.nextElementSibling;
+          if (select.value === "others") {
+            otherInput.style.display = "block";
+          } else {
+            otherInput.style.display = "none";
+          }
+        }
+
+        function addActivityField() {
+          var container = document.getElementById("activity-container");
+          var newEntry = document
+            .querySelector(".activity-entry")
+            .cloneNode(true);
+          newEntry.querySelector("select").value = "";
+          newEntry.querySelector("input").style.display = "none";
+          container.appendChild(newEntry);
+        }
+
+        function removeActivityField(button) {
+          var container = document.getElementById("activity-container");
+          if (container.children.length > 1) {
+            button.parentElement.remove();
+          }
+        }
+      </script>
+
+      <label for="unitOfMeasurement">Unit of Measurement:</label>
+      <select id="unitOfMeasurement" name="unitOfMeasurement" required>
+        <option value="Children">Children</option>
+        <option value="Teachers">Teachers</option>
+        <option value="SBMCs">SBMCs</option>
+        <option value="Facilities">Facilities</option></select
+      ><br /><br />
+
+      <label for="objectives">Objectives:</label>
+      <select id="objectives" name="objectives" required>
+        <option value="conflict_affected_children">
+          Conflict-affected children and adolescents receive gender and
+          disability inclusive quality education services and enhance teachers'
+          capacity to protect wellbeing of children affected from emergency
+        </option>
+        <option value="cash_transfers">
+          Provide cash-transfers to school and families to cover the education
+          cost
+        </option>
+        <option value="alternative_learning">
+          Upscale alternative learning programs by integrating various learning
+          models, including those in Tsangaya schools, and blend them with
+          vocational training to support learner transitions
+        </option>
+        <option value="contextual_learning">
+          Scale up contextually relevant learning models (TarL, KaRi, OTL, and
+          where possible digital/radio learning to improve students learning
+          outcome in collaboration with the government; and Distribution of
+          individual learning/teaching kits
+        </option>
+        <option value="teacher_training">
+          Teachers trained on tailored blended learning with skills development
+          programmes align with the lifestyles of crises affected children.
+        </option>
+        <option value="mhps_pss">
+          Train teachers and SBMC on cross-cutting issues such as MHPS, PSS and
+          protection referral pathways to ensure children are safe and secure
+        </option>
+        <option value="school_rehabilitation">
+          Damaged schools rehabilitated/provide additional classrooms to
+          accommodate learners to transition, including school furniture
+        </option>
+        <option value="government_capacity">
+          Government Ministries, Departments and Agencies (MDAs) and Communities
+          have increased and maintained capacity to plan and deliver a timely,
+          appropriate and evidence-based Education in Emergencies response
+        </option>
+      </select>
+
+      <script>
+        function toggleObjectiveInput(select) {
+          var otherInput = document.getElementById("otherObjective");
+          if (select.value === "others") {
+            otherInput.style.display = "block";
+          } else {
+            otherInput.style.display = "none";
+          }
+        }
+      </script>
+
+      <label for="status">Status:</label>
+      <select id="status" name="status" required>
+        <option value="Ongoing">Ongoing</option>
+        <option value="Completed">Completed</option></select
+      ><br /><br />
+
+      <h2>When</h2>
+      <label for="activityStartDate">Activity Start Date:</label>
+      <input
+        type="date"
+        id="activityStartDate"
+        name="activityStartDate"
+        required
+      /><br /><br />
+
+      <label for="activityEndDate">Activity End Date:</label>
+      <input
+        type="date"
+        id="activityEndDate"
+        name="activityEndDate"
+        required
+      /><br /><br />
+
+      <label for="isHRPActivity">Is HRP activity?</label>
+      <input
+        type="checkbox"
+        id="isHRPActivity"
+        name="isHRPActivity"
+      /><br /><br />
+
+      <label for="hrpCode">HRP Code #:</label>
+      <input type="text" id="hrpCode" name="hrpCode" required /><br /><br />
+
+      <h2>Whom</h2>
+      <label for="totalGirlsUnder18">Total GIRLS under 18 Reached:</label>
+      <input
+        type="number"
+        id="totalGirlsUnder18"
+        name="totalGirlsUnder18"
+        required
+      /><br /><br />
+
+      <label for="totalBoysUnder18">Total BOYS under 18 Reached:</label>
+      <input
+        type="number"
+        id="totalBoysUnder18"
+        name="totalBoysUnder18"
+        required
+      /><br /><br />
+
+      <label for="totalFemaleAdults">Total FEMALE Adults Reached:</label>
+      <input
+        type="number"
+        id="totalFemaleAdults"
+        name="totalFemaleAdults"
+        required
+      /><br /><br />
+
+      <label for="totalMaleAdults">Total MALE Adult Reached:</label>
+      <input
+        type="number"
+        id="totalMaleAdults"
+        name="totalMaleAdults"
+        required
+      /><br /><br />
+
+      <label for="facilitiesConstructed"
+        >Number of Classroom /WASH Facility Constructed or Rehabilitated</label
+      >
+      <input
+        type="number"
+        id="facilitiesConstructed"
+        name="facilitiesConstructed"
+        required
+      /><br /><br />
+
+      <label for="totalChildrenReached">Total Children Reached:</label>
+      <input
+        type="number"
+        id="totalChildrenReached"
+        name="totalChildrenReached"
+        required
+      /><br /><br />
+
+      <label for="totalPopulationReached">Total Population Reached:</label>
+      <input
+        type="number"
+        id="totalPopulationReached"
+        name="totalPopulationReached"
+        required
+      /><br /><br />
+
+      <label for="disability">Disability:</label>
+      <select id="disability" name="disability" required>
+        <option value="" disabled selected>Select</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select><br /><br />
+
+      <label for="additionalComments">Additional Comments:</label>
+      <textarea
+        id="additionalComments"
+        name="additionalComments"
+        required
+      ></textarea
+      ><br /><br />
+
+      <div class="button-container">
+    <input type="button" value="Save" onclick="saveFormData()" />
+    <input type="submit" value="Submit" onclick="submitForm(event)" />
+    <input type="button" value="Back to Dashboard" onclick="window.location.href='index.html'" style="background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;" />
+    <button onclick="handleLogout()" class="logout-btn">Logout</button>
+</div>
+    
+    </form>
+
+    <script>
+        function handleLogout() {
+            // Clear login state
+            localStorage.removeItem('isLoggedIn');
+            // Redirect to login page
+            window.location.href = './login-auth-project/login.html';
+        }
+    </script>
+    </body>
+    </html>
