@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = ""
+  ignore = "git log -1 --pretty=%B | grep dependabot"
 
 [[redirects]]
   from = "/*"
@@ -9,7 +10,7 @@
   force = true
 
 [build.processing]
-  skip_processing = true
+  skip_processing = false
   minify = true
 
 [build.processing.css]
