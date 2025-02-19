@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Add caching and performance optimizations -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="preload" as="script" href="https://unpkg.com/xlsx/dist/xlsx.full.min.js">
     <title>Admin Dashboard</title>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
    
@@ -139,10 +143,6 @@
             transform: translateY(0);
             box-shadow: none;
         }
-    </style>
-</head>
-  </style>
-
     </style>
 </head>
 <body>
