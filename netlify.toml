@@ -9,7 +9,7 @@
   force = true
 
 [build.processing]
-  skip_processing = false
+  skip_processing = truee
   minify = true
 
 [build.processing.css]
